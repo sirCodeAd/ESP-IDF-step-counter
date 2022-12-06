@@ -23,6 +23,7 @@ void blink_LEDs(int ms, int times){
     for(int i = 0; i < times; i++){
         
         gpio_set_level(LED_PIN, 1);
+        
 
         vTaskDelay(pdMS_TO_TICKS(ms));
 

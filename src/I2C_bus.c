@@ -25,6 +25,7 @@ void write_I2C(uint8_t address, uint8_t internal_reg, uint8_t data){
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 
     ESP_ERROR_CHECK(i2c_master_start(cmd));
+    
     ESP_ERROR_CHECK(i2c_master_write_byte(cmd, address << 1 | I2C_MASTER_WRITE, 1));
     ESP_ERROR_CHECK(i2c_master_write_byte(cmd, internal_reg, 1));
     ESP_ERROR_CHECK(i2c_master_write_byte(cmd, data, 1));

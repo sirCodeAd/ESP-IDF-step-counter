@@ -8,6 +8,7 @@ void init_buffer(struct circular_buffer* bufferPtr, uint32_t* data, int max_leng
     bufferPtr->head       = 0;
     bufferPtr->tail       = 0;
     bufferPtr->max_length = max_length;
+    
     bufferPtr->elements   = 0;
 
 }

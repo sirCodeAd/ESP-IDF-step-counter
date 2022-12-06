@@ -26,11 +26,12 @@ static void algo_task(void *arg);
 
 static int debounce          = 0;
 static uint32_t step_counter = 0;
+
 struct circular_buffer buffer;
 uint32_t *buffer_data;
 
-
 SemaphoreHandle_t xSemaphore = NULL;
+
 
 void app_main() {
 
@@ -175,5 +176,5 @@ void ISR_Button_Handler(){
     debounce = esp_timer_get_time();
 
     xSemaphoreGiveFromISR(xSemaphore, NULL);
-     
+
 }

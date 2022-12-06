@@ -81,7 +81,7 @@ uint32_t read_Axis(uint8_t buffer, int16_t raw_data){
 
     return magnitude = (uint32_t)sqrtf(X_Axis * X_Axis + Y_Axis * Y_Axis + Z_Axis * Z_Axis);
 
-    // printf("Raw Values: \nX-accel: %.2f \nY-accel: %.2f \nZ-accel: %.2f\n", X_Accel, Y_Accel, Z_Accel);
-    // printf("magnitude: %d\n", (int)magnitude);
+    // printf("Raw Values: \nX-axis: %.2f \nY-axis: %.2f \nZ-axis: %.2f\n", X_Axis, Y_Axis, Z_Axis);
+    //printf("magnitude: %d\n", (int)magnitude);
     
 }

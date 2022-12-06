@@ -12,20 +12,23 @@
 #define SDA_PIN         33
 #define SCL_PIN         32
 #define BUFFER_SIZE     10      //Used this size because i wanted to tracker to update more frequently.
-#define SAMPLING_PERIOD 100     //I timed 1 step and it took around 1 sec when walking. so 100 steps is 100 sec
-#define ALGO_PERIOD     1000    //I wanted to wait a bit before handling all samples.
+#define SAMPLING_PERIOD 100     //Because we then get a frequency of 10Hz and can measure a person thats running. (5m/s)
+#define ALGO_PERIOD     1000    //I wanted to fill my buffer before the the samples are emptied. 
 #define STEP_GOAL       15
+#define MIN_SD          400     //Minimum value SD has to have so we know we are moving and not standing still
+
 
 void ISR_Button_Handler();
 
+static void led_task(void *arg);
 static void sampling_task(void *arg);
 static void algo_task(void *arg);
-static void led_task(void *arg);
 
-uint32_t buffer_magnitude;
-uint32_t *buffer_data;
+static int debounce          = 0;
 static uint32_t step_counter = 0;
 struct circular_buffer buffer;
+uint32_t *buffer_data;
+
 
 SemaphoreHandle_t xSemaphore = NULL;
 
@@ -41,20 +44,20 @@ void app_main() {
 
     esp_pm_configure(&config);
 
+    xSemaphore = xSemaphoreCreateBinary(); 
+
     init_I2C(SDA_PIN, SCL_PIN);
     Init_Pins();
 
     write_I2C(MPU6050_ADDR, MPU6050_PWR_MGMT_1, 0x00);
     write_I2C(MPU6050_ADDR, MPU6050_SMPLRT_DIV, 250);
-
-    xSemaphore = xSemaphoreCreateBinary(); 
     
     buffer_data = (uint32_t *)malloc(BUFFER_SIZE * sizeof(uint32_t));
     init_buffer(&buffer, buffer_data, BUFFER_SIZE);
 
+    xTaskCreate(led_task,"led_task", 2048, NULL, 3, NULL);
     xTaskCreate(sampling_task, "sampling_task", 2048, NULL, 1, NULL);
-    xTaskCreate(algo_task, "algo_task", 2048, NULL, 1, NULL);
-    xTaskCreate(led_task,"led_task", 2048, NULL, 5, NULL);
+    xTaskCreate(algo_task, "algo_task", 2048, NULL, 2, NULL);
 
 }
 
@@ -120,7 +123,7 @@ static void algo_task(void *arg){
             sd_value = sqrtf(sum);
 
             //check if we are moving or standing still
-            if(sd_value > 500){
+            if(sd_value > MIN_SD){
 
                 for (int i = 0; i < buffer.max_length; i++){
 
@@ -147,7 +150,6 @@ static void led_task(void *arg){
 
     gpio_set_intr_type(BUTTON_PIN, GPIO_INTR_NEGEDGE);
     gpio_install_isr_service(0);
-
     gpio_isr_handler_add(BUTTON_PIN, ISR_Button_Handler, NULL);
 
     while(1){
@@ -156,15 +158,22 @@ static void led_task(void *arg){
         if (xSemaphoreTake(xSemaphore, portMAX_DELAY) == pdTRUE){
             if(step_counter >= STEP_GOAL){
 
-                blink_LEDs(300, 3);
+                blink_LEDs(300, 5);
 
             }
-
         }
     }
 }
 
 void ISR_Button_Handler(){
 
-    xSemaphoreGiveFromISR(xSemaphore, NULL); 
+    if(esp_timer_get_time() - debounce < 0.5 * 1000000){
+
+        return;
+    }
+
+    debounce = esp_timer_get_time();
+
+    xSemaphoreGiveFromISR(xSemaphore, NULL);
+     
 }

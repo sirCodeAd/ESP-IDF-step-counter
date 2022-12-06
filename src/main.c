@@ -9,13 +9,13 @@
 #include "I2C_bus.h"
 #include "Pins.h"
 
-#define SDA_PIN         33
-#define SCL_PIN         32
-#define BUFFER_SIZE     10      //Used this size because i wanted to tracker to update more frequently.
-#define SAMPLING_PERIOD 100     //Because we then get a frequency of 10Hz and can measure a person thats running. (5m/s)
-#define ALGO_PERIOD     1000    //I wanted to fill my buffer before the the samples are emptied. 
-#define STEP_GOAL       15
-#define MIN_SD          400     //Minimum value SD has to have so we know we are moving and not standing still
+#define SDA_PIN             33
+#define SCL_PIN             32
+#define BUFFER_SIZE         10      //Used this size because i wanted to tracker to update more frequently.
+#define SAMPLING_PERIOD     100     //Because we then get a frequency of 10Hz and can measure a person thats running. (5m/s)
+#define ALGO_PERIOD         1000    //I wanted to fill my buffer before the the samples are emptied. 
+#define STEP_GOAL           15
+#define MIN_SD              400     //Minimum value SD has to have so we know we are moving and not standing still
 
 
 void ISR_Button_Handler();
@@ -178,3 +178,5 @@ void ISR_Button_Handler(){
     xSemaphoreGiveFromISR(xSemaphore, NULL);
 
 }
+
+

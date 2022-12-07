@@ -56,9 +56,11 @@ void app_main() {
     buffer_data = (uint32_t *)malloc(BUFFER_SIZE * sizeof(uint32_t));
     init_buffer(&buffer, buffer_data, BUFFER_SIZE);
 
-    xTaskCreate(led_task,"led_task", 2048, NULL, 3, NULL);
+    xTaskCreate(led_task,"led_task", 2048, NULL, 10, NULL);
     xTaskCreate(sampling_task, "sampling_task", 2048, NULL, 1, NULL);
-    xTaskCreate(algo_task, "algo_task", 2048, NULL, 2, NULL);
+    xTaskCreate(algo_task, "algo_task", 2048, NULL, 0, NULL);
+
+
 
 }
 
@@ -166,6 +168,9 @@ static void led_task(void *arg){
     }
 }
 
+/*
+ISR handler for button and if-statement to ignore debounces from button.
+*/
 void ISR_Button_Handler(){
 
     if(esp_timer_get_time() - debounce < 0.5 * 1000000){
